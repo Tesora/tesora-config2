@@ -11,7 +11,7 @@ cd system-config
 
 cat > manifests/local.pp <<EOF
 node default {
-  class { 'openstack_project::puppetmaster':
+  class { 'tesora_cyclone::puppetmaster':
     root_rsa_key => hiera('puppetmaster_root_rsa_key', 'XXX'),
     update_slave => false,
     sysadmins    => hiera('sysadmins', []),

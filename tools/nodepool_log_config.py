@@ -28,7 +28,7 @@ import textwrap
 import yaml
 
 # default paths and outputs
-MODULES_PATH = '../modules/openstack_project/templates/nodepool'
+MODULES_PATH = '../modules/tesora_cyclone/templates/nodepool'
 # default the project-config repo path to the same folder as this repo
 CONFIG_FILE = '../../project-config/nodepool/nodepool.yaml'
 LOGGING_CONFIG_FILE = MODULES_PATH + '/nodepool-builder.logging.conf.erb'

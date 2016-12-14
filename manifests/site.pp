@@ -12,7 +12,7 @@ $elasticsearch_clients = hiera_array('elasticsearch_clients')
 # Default: should at least behave like an openstack server
 #
 node default {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     sysadmins => hiera('sysadmins', []),
   }
 }
@@ -22,12 +22,12 @@ node default {
 #
 # Node-OS: trusty
 node 'review.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80, 443, 29418],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::review':
+  class { 'tesora_cyclone::review':
     project_config_repo                 => 'https://git.openstack.org/openstack-infra/project-config',
     github_oauth_token                  => hiera('gerrit_github_token'),
     github_project_username             => hiera('github_project_username', 'username'),
@@ -65,13 +65,13 @@ node 'review.openstack.org' {
 
 # Node-OS: trusty
 node 'review-dev.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80, 443, 29418],
     sysadmins                 => hiera('sysadmins', []),
     afs                       => true,
   }
 
-  class { 'openstack_project::review_dev':
+  class { 'tesora_cyclone::review_dev':
     project_config_repo                 => 'https://git.openstack.org/openstack-infra/project-config',
     github_oauth_token                  => hiera('gerrit_dev_github_token'),
     github_project_username             => hiera('github_dev_project_username', 'username'),
@@ -99,11 +99,11 @@ node 'review-dev.openstack.org' {
 
 # Node-OS: trusty
 node 'grafana.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::grafana':
+  class { 'tesora_cyclone::grafana':
     admin_password      => hiera('grafana_admin_password'),
     admin_user          => hiera('grafana_admin_user', 'username'),
     mysql_host          => hiera('grafana_mysql_host', 'localhost'),
@@ -117,23 +117,23 @@ node 'grafana.openstack.org' {
 
 # Node-OS: trusty
 node 'health.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::openstack_health_api':
+  class { 'tesora_cyclone::openstack_health_api':
     subunit2sql_db_host => hiera('subunit2sql_db_host', 'localhost'),
   }
 }
 
 # Node-OS: trusty
 node 'stackalytics.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::stackalytics':
+  class { 'tesora_cyclone::stackalytics':
     gerrit_ssh_user              => hiera('stackalytics_gerrit_ssh_user'),
     stackalytics_ssh_private_key => hiera('stackalytics_ssh_private_key_contents'),
   }
@@ -149,13 +149,13 @@ node /^jenkins\d+\.openstack\.org$/ {
   $http_iptables_rule = '-m state --state NEW -m tcp -p tcp --dport 80 -s nodepool.openstack.org -j ACCEPT'
   $https_iptables_rule = '-m state --state NEW -m tcp -p tcp --dport 443 -s nodepool.openstack.org -j ACCEPT'
   $iptables_rule = flatten([$zmq_iptables_rule, $http_iptables_rule, $https_iptables_rule])
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_rules6     => $iptables_rule,
     iptables_rules4     => $iptables_rule,
     sysadmins           => hiera('sysadmins', []),
     puppetmaster_server => 'puppetmaster.openstack.org',
   }
-  class { 'openstack_project::jenkins':
+  class { 'tesora_cyclone::jenkins':
     jenkins_password        => hiera('jenkins_jobs_password'),
     jenkins_ssh_private_key => hiera('jenkins_ssh_private_key_contents'),
     ssl_cert_file           => '/etc/ssl/certs/ssl-cert-snakeoil.pem',
@@ -166,8 +166,8 @@ node /^jenkins\d+\.openstack\.org$/ {
 
 # Node-OS: trusty
 node 'cacti.openstack.org' {
-  include openstack_project::ssl_cert_check
-  class { 'openstack_project::cacti':
+  include tesora_cyclone::ssl_cert_check
+  class { 'tesora_cyclone::cacti':
     sysadmins   => hiera('sysadmins', []),
     cacti_hosts => hiera_array('cacti_hosts'),
     vhost_name  => 'cacti.openstack.org',
@@ -177,8 +177,8 @@ node 'cacti.openstack.org' {
 # Node-OS: trusty
 node /^cacti\d+\.openstack\.org$/ {
   $group = "cacti"
-  include openstack_project::ssl_cert_check
-  class { 'openstack_project::cacti':
+  include tesora_cyclone::ssl_cert_check
+  class { 'tesora_cyclone::cacti':
     sysadmins   => hiera('sysadmins', []),
     cacti_hosts => hiera_array('cacti_hosts'),
     vhost_name  => 'cacti.openstack.org',
@@ -187,12 +187,12 @@ node /^cacti\d+\.openstack\.org$/ {
 
 # Node-OS: trusty
 node 'puppetmaster.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [8140],
     sysadmins                 => hiera('sysadmins', []),
     pin_puppet                => '3.6.',
   }
-  class { 'openstack_project::puppetmaster':
+  class { 'tesora_cyclone::puppetmaster':
     root_rsa_key                               => hiera('puppetmaster_root_rsa_key'),
     puppetmaster_clouds                        => hiera('puppetmaster_clouds'),
     puppetdb                                   => false,
@@ -202,21 +202,21 @@ node 'puppetmaster.openstack.org' {
 # Node-OS: precise
 node 'puppetdb.openstack.org' {
   $open_ports = [8081, 80]
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => $open_ports,
     sysadmins                 => hiera('sysadmins', []),
   }
-  include openstack_project::puppetdb
+  include tesora_cyclone::puppetdb
 }
 
 # Node-OS: trusty
 node 'puppetdb01.openstack.org' {
   $open_ports = [8081, 80]
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => $open_ports,
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::puppetdb':
+  class { 'tesora_cyclone::puppetdb':
     version => '4.0.2-1puppetlabs1',
   }
 }
@@ -231,7 +231,7 @@ node 'graphite.openstack.org' {
   # Turn a list of hostnames into a list of iptables rules
   $rules = regsubst ($statsd_hosts, '^(.*)$', '-m udp -p udp -s \1 --dport 8125 -j ACCEPT')
 
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80, 443],
     iptables_rules6           => $rules,
     iptables_rules4           => $rules,
@@ -247,11 +247,11 @@ node 'graphite.openstack.org' {
 
 # Node-OS: trusty
 node 'groups.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::groups':
+  class { 'tesora_cyclone::groups':
     site_admin_password          => hiera('groups_site_admin_password'),
     site_mysql_host              => hiera('groups_site_mysql_host', 'localhost'),
     site_mysql_password          => hiera('groups_site_mysql_password'),
@@ -264,11 +264,11 @@ node 'groups.openstack.org' {
 
 # Node-OS: trusty
 node 'groups-dev.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::groups_dev':
+  class { 'tesora_cyclone::groups_dev':
     site_admin_password          => hiera('groups_dev_site_admin_password'),
     site_mysql_host              => hiera('groups_dev_site_mysql_host', 'localhost'),
     site_mysql_password          => hiera('groups_dev_site_mysql_password'),
@@ -282,7 +282,7 @@ node 'groups-dev.openstack.org' {
 
 # Node-OS: trusty
 node 'lists.openstack.org' {
-  class { 'openstack_project::lists':
+  class { 'tesora_cyclone::lists':
     listadmins   => hiera('listadmins', []),
     listpassword => hiera('listpassword'),
   }
@@ -290,11 +290,11 @@ node 'lists.openstack.org' {
 
 # Node-OS: trusty
 node 'paste.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::paste':
+  class { 'tesora_cyclone::paste':
     db_password         => hiera('paste_db_password'),
     db_host             => hiera('paste_db_host'),
   }
@@ -302,11 +302,11 @@ node 'paste.openstack.org' {
 
 # Node-OS: trusty
 node /^paste\d+\.openstack\.org$/ {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::paste':
+  class { 'tesora_cyclone::paste':
     db_password         => hiera('paste_db_password'),
     db_host             => hiera('paste_db_host'),
     vhost_name          => 'paste.openstack.org',
@@ -316,19 +316,19 @@ node /^paste\d+\.openstack\.org$/ {
 # Node-OS: precise
 # Node-OS: trusty
 node 'planet.openstack.org' {
-  class { 'openstack_project::planet':
+  class { 'tesora_cyclone::planet':
     sysadmins => hiera('sysadmins', []),
   }
 }
 
 # Node-OS: trusty
 node 'eavesdrop.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::eavesdrop':
+  class { 'tesora_cyclone::eavesdrop':
     project_config_repo     => 'https://git.openstack.org/openstack-infra/project-config',
     nickpass                => hiera('openstack_meetbot_password'),
     statusbot_nick          => hiera('statusbot_nick', 'username'),
@@ -357,12 +357,12 @@ node 'eavesdrop.openstack.org' {
 
 # Node-OS: trusty
 node 'etherpad.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::etherpad':
+  class { 'tesora_cyclone::etherpad':
     ssl_cert_file_contents  => hiera('etherpad_ssl_cert_file_contents'),
     ssl_key_file_contents   => hiera('etherpad_ssl_key_file_contents'),
     ssl_chain_file_contents => hiera('etherpad_ssl_chain_file_contents'),
@@ -374,12 +374,12 @@ node 'etherpad.openstack.org' {
 
 # Node-OS: trusty
 node 'etherpad-dev.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::etherpad_dev':
+  class { 'tesora_cyclone::etherpad_dev':
     mysql_host          => hiera('etherpad-dev_db_host', 'localhost'),
     mysql_user          => hiera('etherpad-dev_db_user', 'username'),
     mysql_password      => hiera('etherpad-dev_db_password'),
@@ -389,7 +389,7 @@ node 'etherpad-dev.openstack.org' {
 # Node-OS: trusty
 node /^wiki\d+\.openstack\.org$/ {
   $group = "wiki"
-  class { 'openstack_project::wiki':
+  class { 'tesora_cyclone::wiki':
     sysadmins                 => hiera('sysadmins', []),
     bup_user                  => 'bup-wiki',
     serveradmin               => hiera('infra_apache_serveradmin'),
@@ -412,7 +412,7 @@ node /^wiki\d+\.openstack\.org$/ {
 # Node-OS: trusty
 node /^wiki-dev\d+\.openstack\.org$/ {
   $group = "wiki-dev"
-  class { 'openstack_project::wiki':
+  class { 'tesora_cyclone::wiki':
     sysadmins             => hiera('sysadmins', []),
     serveradmin           => hiera('infra_apache_serveradmin'),
     site_hostname         => 'wiki-dev.openstack.org',
@@ -436,14 +436,14 @@ node 'logstash.openstack.org' {
   '^(.*)$', '-m state --state NEW -m tcp -p tcp --dport 4730 -s \1 -j ACCEPT')
   $logstash_iptables_rule = flatten([$iptables_es_rule, $iptables_gm_rule])
 
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 3306],
     iptables_rules6           => $logstash_iptables_rule,
     iptables_rules4           => $logstash_iptables_rule,
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::logstash':
+  class { 'tesora_cyclone::logstash':
     discover_nodes      => [
       'elasticsearch02.openstack.org:9200',
       'elasticsearch03.openstack.org:9200',
@@ -463,14 +463,14 @@ node /^logstash-worker\d+\.openstack\.org$/ {
   '^(.*)$', '-m state --state NEW -m tcp -p tcp --dport 9200:9400 -s \1 -j ACCEPT')
   $group = 'logstash-worker'
 
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22],
     iptables_rules6           => $logstash_worker_iptables_rule,
     iptables_rules4           => $logstash_worker_iptables_rule,
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::logstash_worker':
+  class { 'tesora_cyclone::logstash_worker':
     discover_node         => 'elasticsearch02.openstack.org',
     enable_mqtt           => false,
     mqtt_password         => hiera('mqtt_service_user_password'),
@@ -481,11 +481,11 @@ node /^logstash-worker\d+\.openstack\.org$/ {
 # Node-OS: trusty
 node /^subunit-worker\d+\.openstack\.org$/ {
   $group = "subunit-worker"
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::subunit_worker':
+  class { 'tesora_cyclone::subunit_worker':
     subunit2sql_db_host => hiera('subunit2sql_db_host', ''),
     subunit2sql_db_pass => hiera('subunit2sql_db_password', ''),
   }
@@ -499,20 +499,20 @@ node /^elasticsearch0[1-7]\.openstack\.org$/ {
   $iptables_clients_rule = regsubst ($elasticsearch_clients,
                                      '^(.*)$', '-m state --state NEW -m tcp -p tcp --dport 9200:9400 -s \1 -j ACCEPT')
   $iptables_rule = flatten([$iptables_nodes_rule, $iptables_clients_rule])
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22],
     iptables_rules6           => $iptables_rule,
     iptables_rules4           => $iptables_rule,
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::elasticsearch_node':
+  class { 'tesora_cyclone::elasticsearch_node':
     discover_nodes        => $elasticsearch_nodes,
   }
 }
 
 # Node-OS: xenial
 node /^firehose\d+\.openstack\.org$/ {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     # NOTE(mtreinish) Port 80 and 8080 are disabled because websocket
     # connections seem to crash mosquitto. Once this is fixed we should add
     # them back
@@ -520,7 +520,7 @@ node /^firehose\d+\.openstack\.org$/ {
     sysadmins                 => hiera('sysadmins', []),
     manage_exim               => false,
   }
-  class { 'openstack_project::firehose':
+  class { 'tesora_cyclone::firehose':
     sysadmins           => hiera('sysadmins', []),
     gerrit_ssh_host_key => hiera('gerrit_ssh_rsa_pubkey_contents'),
     gerrit_public_key   => hiera('germqtt_gerrit_ssh_public_key'),
@@ -537,7 +537,7 @@ node /^firehose\d+\.openstack\.org$/ {
 
 # Node-OS: trusty
 node /^pholio\d+\.openstack\.org$/ {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
@@ -556,7 +556,7 @@ node /^pholio\d+\.openstack\.org$/ {
 # Node-OS: centos7
 node /^git(-fe\d+)?\.openstack\.org$/ {
   $group = "git-loadbalancer"
-  class { 'openstack_project::git':
+  class { 'tesora_cyclone::git':
     sysadmins               => hiera('sysadmins', []),
     balancer_member_names   => [
       'git01.openstack.org',
@@ -586,13 +586,13 @@ node /^git(-fe\d+)?\.openstack\.org$/ {
 # Node-OS: centos7
 node /^git\d+\.openstack\.org$/ {
   $group = "git-server"
-  include openstack_project
-  class { 'openstack_project::server':
+  include tesora_cyclone
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [4443, 8080, 29418],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::git_backend':
+  class { 'tesora_cyclone::git_backend':
     project_config_repo     => 'https://git.openstack.org/openstack-infra/project-config',
     vhost_name              => 'git.openstack.org',
     git_gerrit_ssh_key      => hiera('gerrit_replication_ssh_rsa_pubkey_contents'),
@@ -609,7 +609,7 @@ node /^git\d+\.openstack\.org$/ {
 node 'mirror-update.openstack.org' {
   $group = "afsadmin"
 
-  class { 'openstack_project::mirror_update':
+  class { 'tesora_cyclone::mirror_update':
     bandersnatch_keytab => hiera('bandersnatch_keytab'),
     admin_keytab        => hiera('afsadmin_keytab'),
     reprepro_keytab     => hiera('reprepro_keytab'),
@@ -625,14 +625,14 @@ node 'mirror-update.openstack.org' {
 node /^mirror\..*\.openstack\.org$/ {
   $group = "mirror"
 
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80],
     sysadmins                 => hiera('sysadmins', []),
     afs                       => true,
     afs_cache_size            => 50000000,  # 50GB
   }
 
-  class { 'openstack_project::mirror':
+  class { 'tesora_cyclone::mirror':
     vhost_name => $::fqdn,
     require    => Class['Openstack_project::Server'],
   }
@@ -641,7 +641,7 @@ node /^mirror\..*\.openstack\.org$/ {
 # A machine to run ODSREG in preparation for summits.
 # Node-OS: trusty
 node 'design-summit-prep.openstack.org' {
-  class { 'openstack_project::summit':
+  class { 'tesora_cyclone::summit':
     sysadmins => hiera('sysadmins', []),
   }
 }
@@ -649,14 +649,14 @@ node 'design-summit-prep.openstack.org' {
 # Serve static AFS content for docs and other sites.
 # Node-OS: trusty
 node 'files01.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80],
     sysadmins                 => hiera('sysadmins', []),
     afs                       => true,
     afs_cache_size            => 10000000,  # 10GB
   }
 
-  class { 'openstack_project::files':
+  class { 'tesora_cyclone::files':
     vhost_name => 'files.openstack.org',
     require    => Class['Openstack_project::Server'],
   }
@@ -664,7 +664,7 @@ node 'files01.openstack.org' {
 
 # Node-OS: trusty
 node 'refstack.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
@@ -689,7 +689,7 @@ node 'refstack.openstack.org' {
 # A machine to run Storyboard
 # Node-OS: trusty
 node 'storyboard.openstack.org' {
-  class { 'openstack_project::storyboard':
+  class { 'tesora_cyclone::storyboard':
     project_config_repo     => 'https://git.openstack.org/openstack-infra/project-config',
     sysadmins               => hiera('sysadmins', []),
     mysql_host              => hiera('storyboard_db_host', 'localhost'),
@@ -718,7 +718,7 @@ node 'storyboard.openstack.org' {
 # A machine to run Storyboard devel
 # Node-OS: trusty
 node 'storyboard-dev.openstack.org' {
-  class { 'openstack_project::storyboard::dev':
+  class { 'tesora_cyclone::storyboard::dev':
     project_config_repo     => 'https://git.openstack.org/openstack-infra/project-config',
     sysadmins               => hiera('sysadmins', []),
     mysql_host              => hiera('storyboard_db_host', 'localhost'),
@@ -743,11 +743,11 @@ node 'storyboard-dev.openstack.org' {
 # A machine to serve static content.
 # Node-OS: trusty
 node 'static.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::static':
+  class { 'tesora_cyclone::static':
     project_config_repo          => 'https://git.openstack.org/openstack-infra/project-config',
     swift_authurl                => 'https://identity.api.rackspacecloud.com/v2.0/',
     swift_user                   => 'infra-files-ro',
@@ -767,12 +767,12 @@ node 'static.openstack.org' {
 # A machine to serve various project status updates.
 # Node-OS: trusty
 node 'status.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::status':
+  class { 'tesora_cyclone::status':
     gerrit_host                   => 'review.openstack.org',
     gerrit_ssh_host_key           => hiera('gerrit_ssh_rsa_pubkey_contents'),
     reviewday_ssh_public_key      => hiera('reviewday_rsa_pubkey_contents'),
@@ -829,13 +829,13 @@ node 'nodepool.openstack.org' {
   $citycloud_password = hiera('nodepool_citycloud_password')
   $entercloud_username = hiera('nodepool_entercloud_username', 'username')
   $entercloud_password = hiera('nodepool_entercloud_password')
-  $clouds_yaml = template("openstack_project/nodepool/clouds.yaml.erb")
+  $clouds_yaml = template("tesora_cyclone/nodepool/clouds.yaml.erb")
 
   $zk_receivers = ['nb01.openstack.org', 'nb02.openstack.org']
   $zk_iptables_rule = regsubst($zk_receivers,
                                '^(.*)$', '-m state --state NEW -m tcp -p tcp --dport 2181 -s \1 -j ACCEPT')
   $iptables_rule = flatten([$zk_iptables_rule])
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_rules6           => $iptables_rule,
     iptables_rules4           => $iptables_rule,
     sysadmins                 => hiera('sysadmins', []),
@@ -844,7 +844,7 @@ node 'nodepool.openstack.org' {
 
   class { '::zookeeper': }
 
-  include openstack_project
+  include tesora_cyclone
 
   class { '::openstackci::nodepool':
     vhost_name                    => 'nodepool.openstack.org',
@@ -858,8 +858,8 @@ node 'nodepool.openstack.org' {
     oscc_file_contents            => $clouds_yaml,
     image_log_document_root       => '/var/log/nodepool/image',
     statsd_host                   => 'graphite.openstack.org',
-    logging_conf_template         => 'openstack_project/nodepool/nodepool.logging.conf.erb',
-    builder_logging_conf_template => 'openstack_project/nodepool/nodepool-builder.logging.conf.erb',
+    logging_conf_template         => 'tesora_cyclone/nodepool/nodepool.logging.conf.erb',
+    builder_logging_conf_template => 'tesora_cyclone/nodepool/nodepool-builder.logging.conf.erb',
     upload_workers                => '16',
     jenkins_masters               => [],
     split_daemon                  => true,
@@ -937,13 +937,13 @@ node /^nb\d+\.openstack\.org$/ {
   $citycloud_password = hiera('nodepool_citycloud_password')
   $entercloud_username = hiera('nodepool_entercloud_username', 'username')
   $entercloud_password = hiera('nodepool_entercloud_password')
-  $clouds_yaml = template("openstack_project/nodepool/clouds.yaml.erb")
-  class { 'openstack_project::server':
+  $clouds_yaml = template("tesora_cyclone/nodepool/clouds.yaml.erb")
+  class { 'tesora_cyclone::server':
     sysadmins                 => hiera('sysadmins', []),
     iptables_public_tcp_ports => [80],
   }
 
-  include openstack_project
+  include tesora_cyclone
 
 
   class { '::openstackci::nodepool_builder':
@@ -953,7 +953,7 @@ node /^nb\d+\.openstack\.org$/ {
     oscc_file_contents            => $clouds_yaml,
     image_log_document_root       => '/var/log/nodepool/image',
     statsd_host                   => 'graphite.openstack.org',
-    builder_logging_conf_template => 'openstack_project/nodepool/nodepool-builder.logging.conf.erb',
+    builder_logging_conf_template => 'tesora_cyclone/nodepool/nodepool-builder.logging.conf.erb',
     upload_workers                => '16',
   }
 
@@ -986,7 +986,7 @@ node /^nb\d+\.openstack\.org$/ {
 
 # Node-OS: trusty
 node 'zuul.openstack.org' {
-  class { 'openstack_project::zuul_prod':
+  class { 'tesora_cyclone::zuul_prod':
     project_config_repo            => 'https://git.openstack.org/openstack-infra/project-config',
     gerrit_server                  => 'review.openstack.org',
     gerrit_user                    => 'jenkins',
@@ -1029,14 +1029,14 @@ node /^zlstatic\d+\.openstack\.org$/ {
   $zmq_iptables_rule = regsubst($zmq_event_receivers,
                                 '^(.*)$', '-m state --state NEW -m tcp -p tcp --dport 8888 -s \1 -j ACCEPT')
   $iptables_rule = flatten([$zmq_iptables_rule])
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_rules6     => $iptables_rule,
     iptables_rules4     => $iptables_rule,
     sysadmins           => hiera('sysadmins', []),
     puppetmaster_server => 'puppetmaster.openstack.org',
     afs                 => true,
   }
-  class { 'openstack_project::zuul_launcher':
+  class { 'tesora_cyclone::zuul_launcher':
     gearman_server       => 'zuul.openstack.org',
     gerrit_server        => 'review.openstack.org',
     gerrit_user          => 'jenkins',
@@ -1058,14 +1058,14 @@ node /^zl\d+\.openstack\.org$/ {
   $zmq_iptables_rule = regsubst($zmq_event_receivers,
                                 '^(.*)$', '-m state --state NEW -m tcp -p tcp --dport 8888 -s \1 -j ACCEPT')
   $iptables_rule = flatten([$zmq_iptables_rule])
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_rules6     => $iptables_rule,
     iptables_rules4     => $iptables_rule,
     sysadmins           => hiera('sysadmins', []),
     puppetmaster_server => 'puppetmaster.openstack.org',
     afs                 => true,
   }
-  class { 'openstack_project::zuul_launcher':
+  class { 'tesora_cyclone::zuul_launcher':
     gearman_server       => 'zuul.openstack.org',
     gerrit_server        => 'review.openstack.org',
     gerrit_user          => 'jenkins',
@@ -1081,7 +1081,7 @@ node /^zl\d+\.openstack\.org$/ {
 # Node-OS: trusty
 node /^zm\d+\.openstack\.org$/ {
   $group = "zuul-merger"
-  class { 'openstack_project::zuul_merger':
+  class { 'tesora_cyclone::zuul_merger':
     gearman_server       => 'zuul.openstack.org',
     gerrit_server        => 'review.openstack.org',
     gerrit_user          => 'jenkins',
@@ -1093,7 +1093,7 @@ node /^zm\d+\.openstack\.org$/ {
 
 # Node-OS: trusty
 node 'zuul-dev.openstack.org' {
-  class { 'openstack_project::zuul_dev':
+  class { 'tesora_cyclone::zuul_dev':
     project_config_repo  => 'https://git.openstack.org/openstack-infra/project-config',
     gerrit_server        => 'review-dev.openstack.org',
     gerrit_user          => 'jenkins',
@@ -1109,7 +1109,7 @@ node 'zuul-dev.openstack.org' {
 
 # Node-OS: trusty
 node 'pbx.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     sysadmins                 => hiera('sysadmins', []),
     # SIP signaling is either TCP or UDP port 5060.
     # RTP media (audio/video) uses a range of UDP ports.
@@ -1118,7 +1118,7 @@ node 'pbx.openstack.org' {
     iptables_rules4           => ['-m udp -p udp --dport 10000:20000 -j ACCEPT'],
     iptables_rules6           => ['-m udp -p udp --dport 10000:20000 -j ACCEPT'],
   }
-  class { 'openstack_project::pbx':
+  class { 'tesora_cyclone::pbx':
     sip_providers => [
       {
         provider => 'voipms',
@@ -1135,14 +1135,14 @@ node 'pbx.openstack.org' {
 # A backup machine.  Don't run cron or puppet agent on it.
 node /^ci-backup-.*\.openstack\.org$/ {
   $group = "ci-backup"
-  include openstack_project::backup_server
+  include tesora_cyclone::backup_server
 }
 
 # Node-OS: trusty
 node 'proposal.slave.openstack.org' {
-  include openstack_project
-  class { 'openstack_project::proposal_slave':
-    jenkins_ssh_public_key   => $openstack_project::jenkins_ssh_key,
+  include tesora_cyclone
+  class { 'tesora_cyclone::proposal_slave':
+    jenkins_ssh_public_key   => $tesora_cyclone::jenkins_ssh_key,
     proposal_ssh_public_key  => hiera('proposal_ssh_public_key_contents'),
     proposal_ssh_private_key => hiera('proposal_ssh_private_key_contents'),
     zanata_server_url        => 'https://translate.openstack.org/',
@@ -1155,11 +1155,11 @@ node 'proposal.slave.openstack.org' {
 node 'release.slave.openstack.org' {
   $group = "afsadmin"
 
-  include openstack_project
-  class { 'openstack_project::release_slave':
+  include tesora_cyclone
+  class { 'tesora_cyclone::release_slave':
     pypi_username          => 'openstackci',
     pypi_password          => hiera('pypi_password'),
-    jenkins_ssh_public_key => $openstack_project::jenkins_ssh_key,
+    jenkins_ssh_public_key => $tesora_cyclone::jenkins_ssh_key,
     jenkinsci_username     => hiera('jenkins_ci_org_user', 'username'),
     jenkinsci_password     => hiera('jenkins_ci_org_password'),
     mavencentral_username  => hiera('mavencentral_org_user', 'username'),
@@ -1177,9 +1177,9 @@ node 'release.slave.openstack.org' {
 # Node-OS: trusty
 node /^signing\d+\.ci\.openstack\.org$/ {
   $group = "signing"
-  include openstack_project
-  class { 'openstack_project::signing_node':
-    jenkins_ssh_public_key => $openstack_project::jenkins_ssh_key,
+  include tesora_cyclone
+  class { 'tesora_cyclone::signing_node':
+    jenkins_ssh_public_key => $tesora_cyclone::jenkins_ssh_key,
     packaging_keytab       => hiera('packaging_keytab'),
     pubring                => hiera('pubring'),
     secring                => hiera('secring'),
@@ -1192,7 +1192,7 @@ node /^signing\d+\.ci\.openstack\.org$/ {
 
 # Node-OS: trusty
 node 'openstackid.org' {
-  class { 'openstack_project::openstackid_prod':
+  class { 'tesora_cyclone::openstackid_prod':
     sysadmins                   => hiera('sysadmins', []),
     site_admin_password         => hiera('openstackid_site_admin_password'),
     id_mysql_host               => hiera('openstackid_id_mysql_host', 'localhost'),
@@ -1222,7 +1222,7 @@ node 'openstackid.org' {
 
 # Node-OS: trusty
 node 'openstackid-dev.openstack.org' {
-  class { 'openstack_project::openstackid_dev':
+  class { 'tesora_cyclone::openstackid_dev':
     sysadmins                   => hiera('sysadmins', []),
     site_admin_password         => hiera('openstackid_dev_site_admin_password'),
     id_mysql_host               => hiera('openstackid_dev_id_mysql_host', 'localhost'),
@@ -1260,7 +1260,7 @@ node 'openstackid-dev.openstack.org' {
 # NOTE(pabelanger): These are the settings we currently use for bare-* nodes.
 # It includes thick_slave.pp.
 node 'single-use-slave-bare' {
-  class { 'openstack_project::single_use_slave':
+  class { 'tesora_cyclone::single_use_slave':
     # Test non-default values from prepare_node_bare.sh
     sudo => true,
     thin => false,
@@ -1279,7 +1279,7 @@ node 'single-use-slave-bare' {
 # nodepool's prepare_node scripts in the apply tests
 # NOTE(pabelanger): These are the current settings we use for devstack-* nodes.
 node 'single-use-slave-devstack' {
-  class { 'openstack_project::single_use_slave':
+  class { 'tesora_cyclone::single_use_slave':
     sudo => true,
     thin => true,
   }
@@ -1293,14 +1293,14 @@ node 'single-node-ci.test.only' {
 
 # Node-OS: trusty
 node 'kdc01.openstack.org' {
-  class { 'openstack_project::kdc':
+  class { 'tesora_cyclone::kdc':
     sysadmins => hiera('sysadmins', []),
   }
 }
 
 # Node-OS: trusty
 node 'kdc02.openstack.org' {
-  class { 'openstack_project::kdc':
+  class { 'tesora_cyclone::kdc':
     sysadmins => hiera('sysadmins', []),
     slave     => true,
   }
@@ -1310,39 +1310,39 @@ node 'kdc02.openstack.org' {
 node /^afsdb.*\.openstack\.org$/ {
   $group = "afsdb"
 
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_udp_ports => [7000,7002,7003,7004,7005,7006,7007],
     sysadmins                 => hiera('sysadmins', []),
     afs                       => true,
     manage_exim               => true,
   }
 
-  include openstack_project::afsdb
+  include tesora_cyclone::afsdb
 }
 
 # Node-OS: trusty
 node /^afs.*\..*\.openstack\.org$/ {
   $group = "afs"
 
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_udp_ports => [7000,7002,7003,7004,7005,7006,7007],
     sysadmins                 => hiera('sysadmins', []),
     afs                       => true,
     manage_exim               => true,
   }
 
-  include openstack_project::afsfs
+  include tesora_cyclone::afsfs
 }
 
 # Node-OS: trusty
 node 'ask.openstack.org' {
 
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::ask':
+  class { 'tesora_cyclone::ask':
     db_user                      => hiera('ask_db_user', 'ask'),
     db_password                  => hiera('ask_db_password'),
     redis_password               => hiera('ask_redis_password'),
@@ -1354,12 +1354,12 @@ node 'ask.openstack.org' {
 
 # Node-OS: trusty
 node 'ask-staging.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [22, 80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
 
-  class { 'openstack_project::ask_staging':
+  class { 'tesora_cyclone::ask_staging':
     db_password                  => hiera('ask_staging_db_password'),
     redis_password               => hiera('ask_staging_redis_password'),
   }
@@ -1367,11 +1367,11 @@ node 'ask-staging.openstack.org' {
 
 # Node-OS: trusty
 node 'translate.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::translate':
+  class { 'tesora_cyclone::translate':
     admin_users             => 'aeng,camunoz,cboylan,daisyycguo,infra,jaegerandi,lyz,mordred,stevenk',
     openid_url              => 'https://openstackid.org',
     listeners               => ['ajp'],
@@ -1394,7 +1394,7 @@ node 'translate.openstack.org' {
 # Node-OS: xenial
 node /^translate-dev\d*\.openstack\.org$/ {
   $group = "translate-dev"
-  class { 'openstack_project::translate_dev':
+  class { 'tesora_cyclone::translate_dev':
     sysadmins             => hiera('sysadmins', []),
     admin_users           => 'aeng,camunoz,cboylan,daisyycguo,infra,jaegerandi,lyz,mordred,stevenk',
     openid_url            => 'https://openstackid.org',
@@ -1411,7 +1411,7 @@ node /^translate-dev\d*\.openstack\.org$/ {
 
 # Node-OS: trusty
 node 'apps.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80, 443],
     sysadmins                 => hiera('sysadmins', []),
   }
@@ -1427,7 +1427,7 @@ node 'apps.openstack.org' {
 
 # Node-OS: trusty
 node 'apps-dev.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80],
     sysadmins                 => hiera('sysadmins', []),
   }
@@ -1458,7 +1458,7 @@ node 'apps-dev.openstack.org' {
 
 # Node-OS: trusty
 node 'odsreg.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80],
     sysadmins                 => hiera('sysadmins', []),
   }
@@ -1471,11 +1471,11 @@ node 'odsreg.openstack.org' {
 
 # Node-OS: trusty
 node 'codesearch.openstack.org' {
-  class { 'openstack_project::server':
+  class { 'tesora_cyclone::server':
     iptables_public_tcp_ports => [80],
     sysadmins                 => hiera('sysadmins', []),
   }
-  class { 'openstack_project::codesearch':
+  class { 'tesora_cyclone::codesearch':
     project_config_repo => 'https://git.openstack.org/openstack-infra/project-config',
   }
 }
@@ -1485,11 +1485,11 @@ node 'codesearch.openstack.org' {
 # Node-OS: xenial
 node /.*wheel-mirror-.*\.openstack\.org/ {
   $group = 'wheel-mirror'
-  include openstack_project
+  include tesora_cyclone
 
-  class { 'openstack_project::wheel_mirror_slave':
+  class { 'tesora_cyclone::wheel_mirror_slave':
     sysadmins                      => hiera('sysadmins', []),
-    jenkins_ssh_public_key         => $openstack_project::jenkins_ssh_key,
+    jenkins_ssh_public_key         => $tesora_cyclone::jenkins_ssh_key,
     wheel_keytab                   => hiera("wheel_keytab"),
   }
 }
@@ -1497,13 +1497,13 @@ node /.*wheel-mirror-.*\.openstack\.org/ {
 # Node-OS: trusty
 node 'controller00.vanilla.ic.openstack.org' {
   $group = 'infracloud'
-  class { '::openstack_project::server':
+  class { '::tesora_cyclone::server':
     iptables_public_tcp_ports => [80,5000,5671,8774,9292,9696,35357], # logs,keystone,rabbit,nova,glance,neutron,keystone
     sysadmins                 => hiera('sysadmins', []),
     enable_unbound            => false,
     purge_apt_sources         => false,
   }
-  class { '::openstack_project::infracloud::controller':
+  class { '::tesora_cyclone::infracloud::controller':
     keystone_rabbit_password         => hiera('keystone_rabbit_password'),
     neutron_rabbit_password          => hiera('neutron_rabbit_password'),
     nova_rabbit_password             => hiera('nova_rabbit_password'),
@@ -1534,12 +1534,12 @@ node 'controller00.vanilla.ic.openstack.org' {
 
 node /^compute\d{3}\.vanilla\.ic\.openstack\.org$/ {
   $group = 'infracloud'
-  class { '::openstack_project::server':
+  class { '::tesora_cyclone::server':
     sysadmins                 => hiera('sysadmins', []),
     enable_unbound            => false,
     purge_apt_sources         => false,
   }
-  class { '::openstack_project::infracloud::compute':
+  class { '::tesora_cyclone::infracloud::compute':
     nova_rabbit_password             => hiera('nova_rabbit_password'),
     neutron_rabbit_password          => hiera('neutron_rabbit_password'),
     neutron_admin_password           => hiera('neutron_admin_password'),
@@ -1553,13 +1553,13 @@ node /^compute\d{3}\.vanilla\.ic\.openstack\.org$/ {
 # Node-OS: trusty
 node 'controller00.chocolate.ic.openstack.org' {
   $group = 'infracloud'
-  class { '::openstack_project::server':
+  class { '::tesora_cyclone::server':
     iptables_public_tcp_ports => [80,5000,5671,8774,9292,9696,35357], # logs,keystone,rabbit,nova,glance,neutron,keystone
     sysadmins                 => hiera('sysadmins', []),
     enable_unbound            => false,
     purge_apt_sources         => false,
   }
-  class { '::openstack_project::infracloud::controller':
+  class { '::tesora_cyclone::infracloud::controller':
     keystone_rabbit_password         => hiera('keystone_rabbit_password'),
     neutron_rabbit_password          => hiera('neutron_rabbit_password'),
     nova_rabbit_password             => hiera('nova_rabbit_password'),
@@ -1589,12 +1589,12 @@ node 'controller00.chocolate.ic.openstack.org' {
 
 node /^compute\d{3}\.chocolate\.ic\.openstack\.org$/ {
   $group = 'infracloud'
-  class { '::openstack_project::server':
+  class { '::tesora_cyclone::server':
     sysadmins                 => hiera('sysadmins', []),
     enable_unbound            => false,
     purge_apt_sources         => false,
   }
-  class { '::openstack_project::infracloud::compute':
+  class { '::tesora_cyclone::infracloud::compute':
     nova_rabbit_password             => hiera('nova_rabbit_password'),
     neutron_rabbit_password          => hiera('neutron_rabbit_password'),
     neutron_admin_password           => hiera('neutron_admin_password'),
@@ -1609,14 +1609,14 @@ node /^compute\d{3}\.chocolate\.ic\.openstack\.org$/ {
 # Upgrade-Modules
 node /^baremetal\d{2}\.vanilla\.ic\.openstack\.org$/ {
   $group = 'infracloud'
-  class { '::openstack_project::server':
+  class { '::tesora_cyclone::server':
     iptables_public_udp_ports => [67,69],
     sysadmins                 => hiera('sysadmins', []),
     enable_unbound            => false,
     purge_apt_sources         => false,
   }
 
-  class { '::openstack_project::infracloud::baremetal':
+  class { '::tesora_cyclone::infracloud::baremetal':
     ironic_inventory          => hiera('ironic_inventory', {}),
     ironic_db_password        => hiera('ironic_db_password'),
     mysql_password            => hiera('bifrost_mysql_password'),
