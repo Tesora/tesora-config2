@@ -3,7 +3,7 @@
 class tesora_cyclone::puppetmaster (
   $puppetmaster_clouds,
   $root_rsa_key = 'xxx',
-  $puppetdb = true,
+  $puppetdb = false,
   $puppetdb_server = 'puppetdb.openstack.org',
   $puppetmaster_update_cron_interval = { min     => '*/15',
                                          hour    => '*',
