@@ -9,7 +9,7 @@ class tesora_cyclone::zuul_prod(
   $zuul_ssh_private_key = '',
   $url_pattern = '',
   $zuul_url = '',
-  $status_url = 'http://status.openstack.org/zuul/',
+  #$status_url = 'http://status.openstack.org/zuul/',
   $swift_authurl = '',
   $swift_auth_version = '',
   $swift_user = '',
@@ -26,7 +26,7 @@ class tesora_cyclone::zuul_prod(
   $statsd_host = '',
   $gearman_workers = [],
   $project_config_repo = '',
-  $git_email = 'jenkins@openstack.org',
+  $git_email = 'jenkins@elasticdb.org',
   $git_name = 'OpenStack Jenkins',
 ) {
   # Turn a list of hostnames into a list of iptables rules
@@ -44,7 +44,7 @@ class tesora_cyclone::zuul_prod(
     gearman_server                 => $gearman_server,
     gerrit_server                  => $gerrit_server,
     gerrit_user                    => $gerrit_user,
-    known_hosts_content            => "review.openstack.org,104.130.159.134,2001:4800:7818:102:be76:4eff:fe05:9b12 ${gerrit_ssh_host_key}",
+# BH: IDK:    known_hosts_content            => "review.elasticdb.org,104.130.159.134,2001:4800:7818:102:be76:4eff:fe05:9b12 ${gerrit_ssh_host_key}",
     zuul_ssh_private_key           => $zuul_ssh_private_key,
     url_pattern                    => $url_pattern,
     zuul_url                       => $zuul_url,

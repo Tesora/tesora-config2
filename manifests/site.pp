@@ -961,28 +961,40 @@ node 'zuul.elasticdb.org' {
     proxy_ssl_chain_file_contents  => hiera('zuul_ssl_chain_file_contents'),
     zuul_url                       => 'http://zuul.elasticdb.org/p',
     sysadmins                      => hiera('sysadmins', []),
-    statsd_host                    => 'graphite.elasticdb.org',
+#    statsd_host                    => 'graphite.elasticdb.org',
     gearman_workers                => [
+#      'jenkins01.elasticdb.org',
       'nodepool.elasticdb.org',
-      'zlstatic01.elasticdb.org',
-      'zl01.elasticdb.org',
-      'zl02.elasticdb.org',
-      'zl03.elasticdb.org',
-      'zl04.elasticdb.org',
-      'zl05.elasticdb.org',
-      'zl06.elasticdb.org',
-      'zl07.elasticdb.org',
-      'zm01.elasticdb.org',
-      'zm02.elasticdb.org',
-      'zm03.elasticdb.org',
-      'zm04.elasticdb.org',
-      'zm05.elasticdb.org',
-      'zm06.elasticdb.org',
-      'zm07.elasticdb.org',
-      'zm08.elasticdb.org',
     ],
   }
 }
+
+## old definition of zuul.
+# Node-OS: precise
+#node 'zuul.elasticdb.org' {
+#  class { 'tesora_cyclone::zuul_prod':
+#    project_config_repo            => 'https://github.com/Tesora/tesora-project-config',
+#    gerrit_server                  => 'review.elasticdb.org',
+#    gerrit_user                    => 'jenkins',
+#    gerrit_ssh_host_key            => hiera('gerrit_ssh_rsa_pubkey_contents', 'XXX'),
+#    zuul_ssh_private_key           => hiera('zuul_ssh_private_key_contents', 'XXX'),
+#    url_pattern                    => 'http://logs.elasticdb.org/{build.parameters[LOG_PATH]}',
+#    swift_authurl                  => 'https://region-b.geo-1.identity.hpcloudsvc.com:35357/v2.0/',
+#    swift_user                     => 'bhunter71',
+#    swift_key                      => hiera('infra_files_rw_password', 'XXX'),
+#    swift_tenant_name              => hiera('infra_files_tenant_name', 'tenantname'),
+#    swift_region_name              => 'US East',
+#    swift_default_container        => 'infra-files',
+#    swift_default_logserver_prefix => 'http://logs.elasticdb.org/',
+#    zuul_url                       => 'http://zuul.elasticdb.org/p',
+#    sysadmins                      => hiera('sysadmins', []),
+##    statsd_host                    => 'graphite.elasticdb.org',
+#    gearman_workers                => [
+#      'jenkins01.elasticdb.org',
+#      'nodepool.elasticdb.org',
+#    ],
+#  }
+#}
 
 # Node-OS: trusty
 node /^zlstatic\d+\.openstack\.org$/ {
